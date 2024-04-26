@@ -7,7 +7,6 @@ import (
 	"karen.assignment/shoup/internal/models"
 )
 
-// RegisterRoutes registers all API routes
 func RegisterRoutes(router *mux.Router, userRepo *models.UserRepository, itemRepo *models.ItemRepository, orderRepo *models.OrderRepository) {
 	router.HandleFunc("/v1/signup", signUpHandler(userRepo)).Methods("POST")
 	router.HandleFunc("/v1/login", loginHandler(userRepo)).Methods("POST")
