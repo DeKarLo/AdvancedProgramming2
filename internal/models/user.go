@@ -37,3 +37,16 @@ func (ur *UserRepository) GetUserByID(userID int) (*User, error) {
 	}
 	return user, nil
 }
+
+func (ur *UserRepository) GetUserByUsername(username string) (*User, error) {
+	user := &User{}
+	err := ur.DB.QueryRow("SELECT id, username, email, password_hash FROM users WHERE username = $1", username).
+		Scan(&user.ID, &user.Username, &user.Email, &user.PasswordHash)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, errors.New("user not found")
+		}
+		return nil, err
+	}
+	return user, nil
+}

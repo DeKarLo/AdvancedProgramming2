@@ -37,3 +37,25 @@ func (ir *ItemRepository) GetItemByID(itemID int) (*Item, error) {
 	}
 	return item, nil
 }
+
+func (ir *ItemRepository) GetItems() ([]*Item, error) {
+	rows, err := ir.DB.Query("SELECT id, name, price, description FROM items")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var items []*Item
+	for rows.Next() {
+		item := &Item{}
+		err := rows.Scan(&item.ID, &item.Name, &item.Price, &item.Description)
+		if err != nil {
+			return nil, err
+		}
+		items = append(items, item)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

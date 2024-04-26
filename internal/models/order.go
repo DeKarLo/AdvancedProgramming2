@@ -20,13 +20,15 @@ type OrderRepository struct {
 }
 
 // InsertOrder inserts a new order into the database
-func (or *OrderRepository) InsertOrder(order *Order) error {
-	_, err := or.DB.Exec("INSERT INTO orders (user_id, total, created_at) VALUES ($1, $2, $3)",
-		order.UserID, order.Total, order.CreatedAt)
+// InsertOrder inserts a new order into the database and returns its ID
+func (or *OrderRepository) InsertOrder(order *Order) (int, error) {
+	var orderID int
+	err := or.DB.QueryRow("INSERT INTO orders (user_id, total, created_at) VALUES ($1, $2, NOW()) RETURNING id",
+		order.UserID, order.Total).Scan(&orderID)
 	if err != nil {
-		return err
+		return 0, err
 	}
-	return nil
+	return orderID, nil
 }
 
 // GetOrderByID retrieves an order from the database by ID
@@ -41,4 +43,13 @@ func (or *OrderRepository) GetOrderByID(orderID int) (*Order, error) {
 		return nil, err
 	}
 	return order, nil
+}
+
+func (or *OrderRepository) InsertOrderItem(orderItem *OrderItem) error {
+	_, err := or.DB.Exec("INSERT INTO order_items (order_id, item_id, quantity) VALUES ($1, $2, $3)",
+		orderItem.OrderID, orderItem.ItemID, orderItem.Quantity)
+	if err != nil {
+		return err
+	}
+	return nil
 }
